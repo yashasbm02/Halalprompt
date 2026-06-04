@@ -8,12 +8,12 @@ Fill in six sections → watch your prompt compile in real time → click Genera
 
 ## What it does
 
-| Step | What happens |
-|---|---|
-| **Fill the form** | Six guided sections covering Role, Objective, Context, Scope, Depth, and Tone |
-| **Live preview** | Every keystroke recompiles your answers into formatted markdown — Raw or rendered Preview tab |
-| **Generate** | The compiled spec is sent to Claude via a server-side API route; the response streams back |
-| **Draft persistence** | Your work is auto-saved to `localStorage` and restored on next visit |
+| Step                  | What happens                                                                                  |
+| --------------------- | --------------------------------------------------------------------------------------------- |
+| **Fill the form**     | Six guided sections covering Role, Objective, Context, Scope, Depth, and Tone                 |
+| **Live preview**      | Every keystroke recompiles your answers into formatted markdown — Raw or rendered Preview tab |
+| **Generate**          | The compiled spec is sent to Claude via a server-side API route; the response streams back    |
+| **Draft persistence** | Your work is auto-saved to `localStorage` and restored on next visit                          |
 
 ---
 
@@ -59,9 +59,9 @@ ANTHROPIC_API_KEY=sk-ant-...   # server-only — never sent to the browser
 npm run build   # type-checks with tsc -b, then bundles with Vite
 ```
 
----
+<!-- --- -->
 
-## Project structure
+<!-- ## Project structure
 
 ```
 src/
@@ -102,9 +102,9 @@ Template
 | `text` | `<Input>` | Single line, optional `maxLength` counter |
 | `textarea` | `<Textarea>` | Multi-line, configurable `rows` |
 | `select` | `<NativeSelect>` | Single choice, native `<select>` |
-| `multiselect` | `<MultiSelect>` | Toggle chips, returns `string[]` |
+| `multiselect` | `<MultiSelect>` | Toggle chips, returns `string[]` | -->
 
----
+<!-- --- -->
 
 ## Changing the model
 
