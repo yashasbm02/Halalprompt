@@ -1,0 +1,239 @@
+import type { Template } from './types'
+
+export const PERFECT_PROMPT_TEMPLATE: Template = {
+  id: 'perfect-prompt',
+  name: 'The Perfect Prompt',
+  description:
+    'A structured six-section framework for engineering high-quality LLM prompts.',
+  sections: [
+    {
+      id: 'role',
+      title: '1. Role & Perspective',
+      description: 'Define the identity and expert lens the model should adopt.',
+      fields: [
+        {
+          id: 'role_title',
+          kind: 'text',
+          label: 'Role / Persona',
+          placeholder:
+            'e.g. Senior Frontend Architect, Data Scientist, Legal Reviewer',
+          required: true,
+          maxLength: 120,
+          hint: 'Be specific — "Senior React engineer at a fintech startup" outperforms "developer".',
+        },
+        {
+          id: 'role_specialisation',
+          kind: 'textarea',
+          label: 'Specialisation & Approach',
+          placeholder:
+            'e.g. Specialising in schema-driven UIs and LLM integration, with a focus on type safety and clean client/server boundaries.',
+          required: false,
+          maxLength: 400,
+          rows: 3,
+        },
+      ],
+    },
+    {
+      id: 'objective',
+      title: '2. Core Objective & Deliverable',
+      description: 'State exactly what must be produced.',
+      fields: [
+        {
+          id: 'objective_goal',
+          kind: 'textarea',
+          label: 'Primary Goal',
+          placeholder:
+            'e.g. Build a schema-driven prompt-builder tool: a guided form that compiles answers into a markdown spec and streams it to an LLM.',
+          required: true,
+          maxLength: 600,
+          rows: 4,
+        },
+        {
+          id: 'objective_deliverable',
+          kind: 'select',
+          label: 'Deliverable Format',
+          required: true,
+          options: [
+            { value: 'code', label: 'Working code / implementation' },
+            { value: 'plan', label: 'Step-by-step plan or architecture doc' },
+            { value: 'analysis', label: 'Analysis or evaluation' },
+            { value: 'draft', label: 'Written draft (copy, docs, spec)' },
+            { value: 'review', label: 'Code review or critique' },
+            { value: 'explanation', label: 'Explanation or tutorial' },
+            { value: 'other', label: 'Other' },
+          ],
+        },
+      ],
+    },
+    {
+      id: 'context',
+      title: '3. Context & Constraints',
+      description: 'Give the model the background it needs; name the hard limits.',
+      fields: [
+        {
+          id: 'context_background',
+          kind: 'textarea',
+          label: 'Background',
+          placeholder:
+            'e.g. This tool turns a prompt template into data (a typed schema), not hardcoded JSX. A user fills in fields, watches a live preview, then clicks Generate.',
+          required: true,
+          maxLength: 800,
+          rows: 4,
+        },
+        {
+          id: 'context_tech_stack',
+          kind: 'multiselect',
+          label: 'Technology Stack',
+          required: false,
+          options: [
+            { value: 'react', label: 'React' },
+            { value: 'nextjs', label: 'Next.js' },
+            { value: 'vue', label: 'Vue' },
+            { value: 'svelte', label: 'Svelte' },
+            { value: 'typescript', label: 'TypeScript' },
+            { value: 'nodejs', label: 'Node.js' },
+            { value: 'python', label: 'Python' },
+            { value: 'postgres', label: 'PostgreSQL' },
+            { value: 'tailwind', label: 'Tailwind CSS' },
+            { value: 'graphql', label: 'GraphQL' },
+            { value: 'rust', label: 'Rust' },
+            { value: 'go', label: 'Go' },
+          ],
+        },
+        {
+          id: 'context_hard_constraints',
+          kind: 'textarea',
+          label: 'Hard Constraints',
+          placeholder:
+            'e.g. API key must never reach the browser. No external databases. Must run in a single repo.',
+          required: false,
+          maxLength: 500,
+          rows: 3,
+        },
+      ],
+    },
+    {
+      id: 'scope',
+      title: '4. Scope & Boundaries',
+      description: 'What is explicitly in or out of bounds.',
+      fields: [
+        {
+          id: 'scope_include',
+          kind: 'textarea',
+          label: 'Include',
+          placeholder:
+            'List what must be covered — features, files, code paths, topics...',
+          required: true,
+          maxLength: 600,
+          rows: 4,
+        },
+        {
+          id: 'scope_exclude',
+          kind: 'textarea',
+          label: 'Exclude',
+          placeholder: 'List what should be skipped or ignored...',
+          required: false,
+          maxLength: 400,
+          rows: 3,
+        },
+      ],
+    },
+    {
+      id: 'depth',
+      title: '5. Depth & Structure',
+      description:
+        'Calibrate how thorough and how formatted the response should be.',
+      fields: [
+        {
+          id: 'depth_level',
+          kind: 'select',
+          label: 'Response Depth',
+          required: true,
+          options: [
+            { value: 'concise', label: 'Concise — key points only, minimal prose' },
+            { value: 'balanced', label: 'Balanced — sufficient detail, not exhaustive' },
+            { value: 'thorough', label: 'Thorough — cover all angles, justify decisions' },
+            { value: 'exhaustive', label: 'Exhaustive — every edge case and trade-off' },
+          ],
+        },
+        {
+          id: 'depth_lenses',
+          kind: 'multiselect',
+          label: 'Analysis Lenses',
+          required: false,
+          options: [
+            { value: 'architecture', label: 'Architecture recommendation' },
+            { value: 'tradeoffs', label: 'Trade-offs between approaches' },
+            { value: 'risks', label: 'Risks & assumptions' },
+            { value: 'second_order', label: 'Second-order effects' },
+            { value: 'testing', label: 'Testing strategy' },
+            { value: 'performance', label: 'Performance' },
+            { value: 'security', label: 'Security implications' },
+            { value: 'dx', label: 'Developer experience' },
+          ],
+        },
+        {
+          id: 'depth_format',
+          kind: 'select',
+          label: 'Output Format',
+          required: false,
+          options: [
+            { value: 'prose', label: 'Flowing prose' },
+            { value: 'bullets', label: 'Bullet lists' },
+            { value: 'headers', label: 'Headed sections' },
+            { value: 'code_first', label: 'Code-first with inline commentary' },
+            { value: 'mixed', label: 'Mixed (headers + prose + code)' },
+          ],
+        },
+      ],
+    },
+    {
+      id: 'tone',
+      title: '6. Tone & Audience Alignment',
+      description: 'Set the communication register and calibrate for the reader.',
+      fields: [
+        {
+          id: 'tone_style',
+          kind: 'select',
+          label: 'Tone',
+          required: true,
+          options: [
+            { value: 'technical', label: 'Technical & precise' },
+            { value: 'collaborative', label: 'Collaborative & conversational' },
+            { value: 'formal', label: 'Formal & professional' },
+            { value: 'casual', label: 'Casual & friendly' },
+            { value: 'didactic', label: 'Didactic & instructional' },
+          ],
+        },
+        {
+          id: 'tone_audience',
+          kind: 'select',
+          label: 'Audience Level',
+          required: true,
+          options: [
+            { value: 'beginner', label: 'Beginner — explain fundamentals' },
+            {
+              value: 'intermediate',
+              label: 'Intermediate — assume domain knowledge, explain patterns',
+            },
+            {
+              value: 'senior',
+              label: 'Senior — skip basics, focus on decisions & trade-offs',
+            },
+            { value: 'expert', label: 'Expert — peer-level, dense references OK' },
+          ],
+        },
+        {
+          id: 'tone_extra',
+          kind: 'textarea',
+          label: 'Additional Guidance',
+          placeholder:
+            'e.g. Avoid jargon. Use analogies from distributed systems. Treat the reader as an engineer who understands state management.',
+          required: false,
+          maxLength: 300,
+          rows: 2,
+        },
+      ],
+    },
+  ],
+}
