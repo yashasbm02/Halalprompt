@@ -9,6 +9,8 @@ import { useFormPersistence, loadDraft, clearDraft } from '../hooks/useFormPersi
 import { SectionCard } from './SectionCard'
 import { PreviewPanel } from './PreviewPanel'
 import { Button } from './ui/Button'
+import { ApiKeyPopover } from './ApiKeyPopover'
+import { useApiKey } from '../context/ApiKeyContext'
 import type { Answers } from '../schema/types'
 
 const template = PERFECT_PROMPT_TEMPLATE
@@ -40,18 +42,29 @@ export function PromptBuilder() {
   const markdown = useMemo(() => compileMarkdown(template, values), [values])
   useFormPersistence(template.id, values)
 
-  const { completion, complete, isLoading, error } = useCompletion({
-    api: '/api/generate',
-  })
+  const { providerId, apiKey, hasKey } = useApiKey()
+
+  const { completion, complete, isLoading, error, setCompletion, stop } =
+    useCompletion({ api: '/api/generate' })
 
   const handleGenerate = form.handleSubmit(async (data) => {
+    if (!apiKey) return
     const spec = compileMarkdown(template, data)
-    await complete(spec)
+    await complete(spec, {
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'x-llm-provider': providerId,
+      },
+    })
   })
 
   const handleReset = () => {
+    if (!window.confirm('Clear all answers and start over? Your API key is kept.'))
+      return
+    stop()
     clearDraft(template.id)
     form.reset(getDefaultValues(template))
+    setCompletion('')
   }
 
   const filled = filledSectionCount(values)
@@ -92,11 +105,10 @@ export function PromptBuilder() {
                 {filled}/{total} sections
               </span>
             </div>
-            {savedDraft && (
-              <Button variant="ghost" size="sm" onClick={handleReset}>
-                Clear draft
-              </Button>
-            )}
+            <ApiKeyPopover />
+            <Button variant="ghost" size="sm" onClick={handleReset}>
+              Reset
+            </Button>
           </div>
         </div>
       </header>
@@ -121,6 +133,7 @@ export function PromptBuilder() {
             isLoading={isLoading}
             error={error ?? undefined}
             canGenerate={form.formState.isValid}
+            hasKey={hasKey}
             onGenerate={handleGenerate}
             onRetry={handleGenerate}
           />
