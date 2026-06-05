@@ -5,7 +5,7 @@ Schema-driven LLM prompt-builder. A guided form compiles structured answers into
 ## Dev setup
 
 ```bash
-cp .env.example .env.local   # add ANTHROPIC_API_KEY
+cp .env.example .env.local   # optional server settings; LLM keys are entered in-app (BYOK)
 npm install
 npm run dev                  # Vite :5173 + Hono :3001 via concurrently
 ```
@@ -36,11 +36,15 @@ Template object
 | `src/components/PromptBuilder.tsx` | Root: RHF form + `useCompletion` + draft persistence |
 | `src/components/FormField.tsx` | Switches on `field.kind` → Input / Textarea / NativeSelect / MultiSelect |
 | `src/components/PreviewPanel.tsx` | Three-tab pane: Raw · Preview · AI Response |
-| `server/index.ts` | Hono on :3001 — receives compiled markdown, calls `streamText`, returns SSE |
+| `server/app.ts` | Hono routes: `POST /api/generate` (SSE) + `POST /api/validate`. Reads the client key from the `Authorization` header **per request** — never stored or logged |
+| `server/providers.ts` | `buildModel(provider, key)` → per-request `createAnthropic` / `createOpenAI` |
+| `src/llm/providers.ts` | Client provider registry (ids, labels, default models, key hints) |
+| `src/context/ApiKeyContext.tsx` | In-memory BYOK key state (`save` / `forget` / `validate`) — never persisted |
+| `src/components/ApiKeyPopover.tsx` | Header popover: provider + masked key + connection status |
 
 ## Trust boundary
 
-The `ANTHROPIC_API_KEY` is **server-only**. All model calls go through `POST /api/generate`. Vite dev server proxies `/api/*` → `http://localhost:3001`. Never add model calls to client code.
+Clients bring their own provider key (**BYOK**). The key travels per-request in an HTTP header (`Authorization: Bearer …` + `x-llm-provider`) over HTTPS to `POST /api/generate`, is used once via `buildModel()` (`server/providers.ts`) to construct the provider, and is **never stored, logged, or written to disk**. On the client it lives in memory only (`src/context/ApiKeyContext.tsx`) — never in `localStorage`, never compiled into the markdown spec. All model calls still go through the server route; never add model calls to client code. Vite dev server proxies `/api/*` → `http://localhost:3001`.
 
 ## Field kinds
 
@@ -55,25 +59,24 @@ RHF (field values, validation)
               └── /api/generate → streamText() → SSE → completion string
 ```
 
-Generate button is disabled while `isLoading` (double-submit guard) and while `!form.formState.isValid`.
+Generate is disabled while `isLoading` (double-submit guard), while `!form.formState.isValid`, and until an API key is set.
 
 ## Draft persistence
 
-`useFormPersistence` debounces localStorage writes (400 ms). Draft key: `prompt-draft-<templateId>`. Loaded on mount in `PromptBuilder`. "Clear draft" button appears when a saved draft is detected.
+`useFormPersistence` debounces localStorage writes (400 ms). Draft key: `prompt-draft-<templateId>`. Loaded on mount in `PromptBuilder`. An always-available **Reset** button clears the answers, draft, and AI response (the API key is kept). The key is never written to the draft.
 
-## Changing the model
+## Changing the model / providers
 
-One line in `server/index.ts`:
-
-```ts
-model: anthropic('claude-sonnet-4-6'),  // swap model id here
-```
+Edit the registry in `src/llm/providers.ts` (labels + default model per provider) and the
+matching `DEFAULT_MODEL` map in `server/providers.ts`. Add a provider by extending the
+`ProviderId` union + factory `switch` in `server/providers.ts` and adding an entry to
+`PROVIDERS` in `src/llm/providers.ts`.
 
 ## Stack
 
 - Vite 6 + React 19 + TypeScript (strict)
 - Tailwind CSS v4 via `@tailwindcss/vite`
 - React Hook Form + Zod
-- Vercel AI SDK (`ai` + `@ai-sdk/anthropic`) — `useCompletion` client hook, `streamText` server
+- Vercel AI SDK (`ai` + `@ai-sdk/anthropic` + `@ai-sdk/openai`) — `useCompletion` client hook, `streamText` / `generateText` server, per-request `createAnthropic` / `createOpenAI`
 - Hono + `@hono/node-server` for the API layer
 - `react-markdown` + `remark-gfm` for rendered preview

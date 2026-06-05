@@ -12,6 +12,7 @@ interface PreviewPanelProps {
   onGenerate: () => void
   onRetry: () => void
   canGenerate: boolean
+  hasKey: boolean
 }
 
 type Tab = 'markdown' | 'preview' | 'response'
@@ -30,6 +31,7 @@ export function PreviewPanel({
   onGenerate,
   onRetry,
   canGenerate,
+  hasKey,
 }: PreviewPanelProps) {
   const [activeTab, setActiveTab] = useState<Tab>('markdown')
   const [hasCopied, setHasCopied] = useState(false)
@@ -135,29 +137,36 @@ export function PreviewPanel({
       </div>
 
       {/* Action bar */}
-      <div className="shrink-0 border-t border-gray-200 bg-white p-3 flex gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          className="flex-1"
-          onClick={handleCopy}
-          disabled={!markdown.trim()}
-        >
-          {hasCopied
-            ? '✓ Copied'
-            : activeTab === 'preview'
-              ? 'Copy Markdown'
-              : 'Copy'}
-        </Button>
-        <Button
-          variant="primary"
-          size="sm"
-          className="flex-1"
-          onClick={handleGenerate}
-          disabled={!canGenerate || isLoading}
-        >
-          {isLoading ? 'Generating…' : 'Generate'}
-        </Button>
+      <div className="shrink-0 border-t border-gray-200 bg-white p-3">
+        {!hasKey && (
+          <p className="mb-2 text-center text-[11px] text-gray-400">
+            Add your API key (top right) to generate.
+          </p>
+        )}
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex-1"
+            onClick={handleCopy}
+            disabled={!markdown.trim()}
+          >
+            {hasCopied
+              ? '✓ Copied'
+              : activeTab === 'preview'
+                ? 'Copy Markdown'
+                : 'Copy'}
+          </Button>
+          <Button
+            variant="primary"
+            size="sm"
+            className="flex-1"
+            onClick={handleGenerate}
+            disabled={!canGenerate || !hasKey || isLoading}
+          >
+            {isLoading ? 'Generating…' : 'Generate'}
+          </Button>
+        </div>
       </div>
     </div>
   )
