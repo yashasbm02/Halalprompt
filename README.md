@@ -1,5 +1,7 @@
 # halalprompt
 
+This is a vibe coded app
+
 A schema-driven prompt-builder that turns structured form answers into a polished markdown spec, then streams it live to Claude.
 
 Fill in six sections → watch your prompt compile in real time → click Generate → get a streaming AI response.
