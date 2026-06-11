@@ -35,6 +35,27 @@
       "description": "State exactly what must be produced.",
       "fields": [
         {
+          "id": "requirement_type",
+          "kind": "select",
+          "label": "Task Type",
+          "required": false,
+          "hint": "Picking a type tailors the questionnaire below. Presets set this for you.",
+          "options": [
+            {
+              "value": "scratch",
+              "label": "Building from scratch"
+            },
+            {
+              "value": "feature",
+              "label": "Adding a feature / enhancement"
+            },
+            {
+              "value": "bugfix",
+              "label": "Fixing a bug"
+            }
+          ]
+        },
+        {
           "id": "objective_goal",
           "kind": "textarea",
           "label": "Primary Goal",
@@ -159,6 +180,94 @@
           "required": false,
           "maxLength": 500,
           "rows": 3
+        }
+      ]
+    },
+    {
+      "id": "bug",
+      "title": "Bug Report Details",
+      "description": "Specifics that help the model diagnose and fix the issue.",
+      "fields": [
+        {
+          "id": "bug_error_message",
+          "kind": "textarea",
+          "label": "Error Message / Stack Trace",
+          "placeholder": "Paste the exact error output or stack trace, if any.",
+          "required": true,
+          "maxLength": 1000,
+          "rows": 4,
+          "visibleWhen": {
+            "field": "requirement_type",
+            "in": [
+              "bugfix"
+            ]
+          }
+        },
+        {
+          "id": "bug_location",
+          "kind": "text",
+          "label": "Suspected File / Page / Area (optional)",
+          "placeholder": "e.g. src/components/PromptBuilder.tsx, the checkout page",
+          "required": false,
+          "maxLength": 200,
+          "visibleWhen": {
+            "field": "requirement_type",
+            "in": [
+              "bugfix"
+            ]
+          }
+        },
+        {
+          "id": "bug_expected_actual",
+          "kind": "textarea",
+          "label": "Expected vs. Actual Behavior",
+          "placeholder": "Expected: …\nActual: … (include steps to reproduce if known)",
+          "required": true,
+          "maxLength": 800,
+          "rows": 4,
+          "visibleWhen": {
+            "field": "requirement_type",
+            "in": [
+              "bugfix"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "feature",
+      "title": "Feature Details",
+      "description": "Where the change lands and what it should do.",
+      "fields": [
+        {
+          "id": "feature_pages",
+          "kind": "textarea",
+          "label": "Pages / Screens Affected",
+          "placeholder": "e.g. Settings page, the onboarding flow, the API key popover.",
+          "required": false,
+          "maxLength": 500,
+          "rows": 3,
+          "visibleWhen": {
+            "field": "requirement_type",
+            "in": [
+              "feature"
+            ]
+          }
+        },
+        {
+          "id": "feature_functions",
+          "kind": "textarea",
+          "label": "Key Functions / Behaviors to Add",
+          "placeholder": "e.g. Persist presets, validate input on blur, debounce search.",
+          "required": false,
+          "maxLength": 600,
+          "rows": 3,
+          "visibleWhen": {
+            "field": "requirement_type",
+            "in": [
+              "feature"
+            ]
+          }
         }
       ]
     },

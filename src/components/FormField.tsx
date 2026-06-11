@@ -10,9 +10,11 @@ import { Label } from './ui/Label'
 interface FormFieldProps {
   field: Field
   form: UseFormReturn<Answers>
+  /** Soft signal that the current value came from an applied preset. */
+  fromPreset?: boolean
 }
 
-export function FormField({ field, form }: FormFieldProps) {
+export function FormField({ field, form, fromPreset }: FormFieldProps) {
   const {
     register,
     control,
@@ -33,9 +35,16 @@ export function FormField({ field, form }: FormFieldProps) {
   return (
     <div className="space-y-1.5">
       <div className="flex items-baseline justify-between gap-2">
-        <Label htmlFor={field.id} required={field.required}>
-          {field.label}
-        </Label>
+        <div className="flex items-baseline gap-2">
+          <Label htmlFor={field.id} required={field.required}>
+            {field.label}
+          </Label>
+          {fromPreset && (
+            <span className="shrink-0 rounded-full bg-blue-50 px-1.5 py-0.5 text-[10px] font-medium text-blue-600">
+              from preset
+            </span>
+          )}
+        </div>
         {charCount !== null && isTextLike && field.maxLength != null && (
           <span
             className={`text-xs tabular-nums ${

@@ -15,8 +15,15 @@ The questionnaire is data, not hardcoded here. Read it from **`template.json`** 
 directory (generated from the app's `src/schema/template.ts` — the single source of truth). It
 contains `name`, and `sections[]`, each with `title`, `description`, and `fields[]`. Every field has
 `id`, `kind` (`text` | `textarea` | `select` | `multiselect`), `label`, `required`, optional
-`placeholder`/`hint`, and `options[]` (`{ value, label }`) for the choice kinds. Ignore the
-`_generated` key.
+`placeholder`/`hint`, and `options[]` (`{ value, label }`) for the choice kinds. A field may also
+carry `visibleWhen` (`{ field, in[] }`) — see the visibility rule below. Ignore the `_generated` key.
+
+**Conditional fields (`visibleWhen`).** A field with `visibleWhen: { field, in }` is **active only
+when** the current answer to `field` is one of `in`. While collecting, **only ask a conditional
+field when its condition is met** — e.g. ask the Bug Report Details fields only when
+`requirement_type` = `bugfix`, and the Feature Details fields only when `requirement_type` =
+`feature`; skip them entirely otherwise. A field that isn't active is treated as empty for both
+required-enforcement and compilation.
 
 ## Workflow
 
@@ -46,9 +53,11 @@ compile, show, answer.
    `value`. A blank line means empty/skip. For multiselect, split on commas into an array of values.
 5. **Enforce required.** A field with `required: true` must have a value — if any are blank or
    unrecognized, re-ask **all of them together in a single turn** (never one-by-one), then proceed.
-   With the current template the required fields are: `role_title`, `objective_goal`,
+   With the current template the always-required fields are: `role_title`, `objective_goal`,
    `objective_deliverable`, `context_background`, `scope_include`, `depth_level`, `tone_style`,
-   `tone_audience`. All others are optional (treat blank as empty).
+   `tone_audience`. Conditionally-required fields (`bug_error_message`, `bug_expected_actual`) are
+   required **only while active** per their `visibleWhen`. All others are optional (treat blank as
+   empty).
 6. **Record answers** keyed by field `id`. For choice fields store the option **`value`** (not the
    label); for text fields store the trimmed string; for multiselect store an array of values.
 7. **Compile the spec inline** following the rules below — produce the markdown yourself, in-context.
@@ -62,8 +71,9 @@ compile, show, answer.
 Build a string from these rules, in order:
 
 1. First line: `# {template.name}` followed by a blank line.
-2. Walk `sections` in order. **Skip a section entirely if none of its fields have a non-empty
-   answer** (empty string or empty array counts as empty).
+2. Walk `sections` in order. **Skip any field whose `visibleWhen` condition is not met** (treat it
+   as empty — never emit it). **Skip a section entirely if none of its (active) fields have a
+   non-empty answer** (empty string or empty array counts as empty).
 3. For an emitted section, output:
    - `## {section.title}` then a blank line,
    - `*{section.description}*` then a blank line (only if it has a description),

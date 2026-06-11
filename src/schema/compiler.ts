@@ -1,3 +1,4 @@
+import { isFieldVisible } from './types'
 import type { Template, Answers } from './types'
 
 export function compileMarkdown(template: Template, answers: Answers): string {
@@ -7,6 +8,7 @@ export function compileMarkdown(template: Template, answers: Answers): string {
     const sectionLines: string[] = []
 
     for (const field of section.fields) {
+      if (!isFieldVisible(field, answers)) continue
       const value = answers[field.id]
       if (!value || (Array.isArray(value) && value.length === 0)) continue
 
