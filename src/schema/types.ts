@@ -6,6 +6,11 @@ interface BaseField {
   placeholder?: string
   required: boolean
   hint?: string
+  /**
+   * When set, the field is only rendered, validated, and compiled while the
+   * answer to `field` is one of `in`. Used by the requirement-driven sections.
+   */
+  visibleWhen?: { field: string; in: string[] }
 }
 
 export interface TextField extends BaseField {
@@ -47,3 +52,14 @@ export interface Template {
 
 export type AnswerValue = string | string[]
 export type Answers = Record<string, AnswerValue>
+
+/**
+ * A field is visible unless it declares `visibleWhen` and the driving answer
+ * is not in the allowed set. Single source of truth for render, validation,
+ * and markdown compilation.
+ */
+export function isFieldVisible(field: Field, answers: Answers): boolean {
+  if (!field.visibleWhen) return true
+  const driver = answers[field.visibleWhen.field]
+  return typeof driver === 'string' && field.visibleWhen.in.includes(driver)
+}
