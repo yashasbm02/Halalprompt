@@ -57,7 +57,7 @@ export function ApiKeyPopover() {
     <div className="relative" ref={ref}>
       <Button variant="outline" size="sm" onClick={() => setOpen((o) => !o)}>
         <span aria-hidden>🔑</span>
-        API Key
+        <span className="hidden sm:inline">API Key</span>
         <span
           aria-hidden
           className={cn(
@@ -68,7 +68,7 @@ export function ApiKeyPopover() {
       </Button>
 
       {open && (
-        <div className="absolute right-0 z-20 mt-2 w-80 space-y-3 rounded-xl border border-gray-200 bg-white p-4 text-left shadow-lg">
+        <div className="absolute right-0 z-20 mt-2 w-[calc(100vw-2rem)] max-w-xs space-y-3 rounded-xl border border-gray-200 bg-white p-4 text-left shadow-lg sm:w-80">
           <div className="space-y-1">
             <Label htmlFor="llm-provider">Provider</Label>
             <NativeSelect
