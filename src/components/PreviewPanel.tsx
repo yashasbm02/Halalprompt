@@ -13,6 +13,8 @@ interface PreviewPanelProps {
   onRetry: () => void
   canGenerate: boolean
   hasKey: boolean
+  /** Mobile only: dismiss the bottom sheet. Absent / unused at md+. */
+  onClose?: () => void
 }
 
 type Tab = 'markdown' | 'preview' | 'response'
@@ -32,6 +34,7 @@ export function PreviewPanel({
   onRetry,
   canGenerate,
   hasKey,
+  onClose,
 }: PreviewPanelProps) {
   const [activeTab, setActiveTab] = useState<Tab>('markdown')
   const [hasCopied, setHasCopied] = useState(false)
@@ -51,6 +54,21 @@ export function PreviewPanel({
 
   return (
     <div className="flex h-full flex-col">
+      {/* Mobile sheet header — grab handle + close (hidden on the desktop rail) */}
+      {onClose && (
+        <div className="relative flex shrink-0 items-center justify-center border-b border-gray-200 py-2 md:hidden">
+          <span className="h-1 w-10 rounded-full bg-gray-300" />
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close preview"
+            className="absolute right-3 top-1/2 -translate-y-1/2 px-2 text-gray-400"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       {/* Tab bar */}
       <div className="flex shrink-0 border-b border-gray-200 bg-white">
         {(['markdown', 'preview', 'response'] as Tab[]).map((tab) => (
@@ -59,7 +77,7 @@ export function PreviewPanel({
             type="button"
             onClick={() => setActiveTab(tab)}
             className={cn(
-              'relative px-4 py-3 text-xs font-medium transition-colors',
+              'relative px-3 py-3.5 text-xs font-medium transition-colors sm:px-4 md:py-3',
               activeTab === tab
                 ? 'text-blue-600'
                 : 'text-gray-500 hover:text-gray-700',
@@ -86,7 +104,7 @@ export function PreviewPanel({
       <div className="min-h-0 flex-1 overflow-y-auto p-4">
         {activeTab === 'markdown' && (
           markdown.trim() ? (
-            <pre className="whitespace-pre-wrap font-mono text-xs leading-relaxed text-gray-700">
+            <pre className="whitespace-pre-wrap break-words font-mono text-xs leading-relaxed text-gray-700">
               {markdown}
             </pre>
           ) : (
@@ -98,7 +116,7 @@ export function PreviewPanel({
 
         {activeTab === 'preview' && (
           markdown.trim() ? (
-            <div className="prose prose-sm max-w-none prose-headings:font-semibold prose-strong:font-semibold prose-code:rounded prose-code:bg-gray-100 prose-code:px-1 prose-code:text-[0.8em]">
+            <div className="prose prose-sm max-w-none break-words prose-headings:font-semibold prose-strong:font-semibold prose-code:rounded prose-code:bg-gray-100 prose-code:px-1 prose-code:text-[0.8em] prose-pre:overflow-x-auto prose-pre:whitespace-pre">
               <Markdown remarkPlugins={[remarkGfm]}>{markdown}</Markdown>
             </div>
           ) : (
@@ -120,7 +138,7 @@ export function PreviewPanel({
               </Button>
             </div>
           ) : completion ? (
-            <div className="prose prose-sm max-w-none prose-headings:font-semibold prose-code:rounded prose-code:bg-gray-100 prose-code:px-1 prose-code:text-[0.8em]">
+            <div className="prose prose-sm max-w-none break-words prose-headings:font-semibold prose-code:rounded prose-code:bg-gray-100 prose-code:px-1 prose-code:text-[0.8em] prose-pre:overflow-x-auto prose-pre:whitespace-pre">
               <Markdown remarkPlugins={[remarkGfm]}>{completion}</Markdown>
             </div>
           ) : isLoading ? (
@@ -147,7 +165,7 @@ export function PreviewPanel({
           <Button
             variant="outline"
             size="sm"
-            className="flex-1"
+            className="min-h-11 flex-1 md:min-h-0"
             onClick={handleCopy}
             disabled={!markdown.trim()}
           >
@@ -160,7 +178,7 @@ export function PreviewPanel({
           <Button
             variant="primary"
             size="sm"
-            className="flex-1"
+            className="min-h-11 flex-1 md:min-h-0"
             onClick={handleGenerate}
             disabled={!canGenerate || !hasKey || isLoading}
           >

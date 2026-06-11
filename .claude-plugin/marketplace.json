@@ -1,0 +1,14 @@
+{
+  "name": "halalprompt",
+  "owner": {
+    "name": "halalprompt"
+  },
+  "description": "The halalprompt 'Perfect Prompt' questionnaire, runnable inside Claude Code — keyless, no server.",
+  "plugins": [
+    {
+      "name": "perfect-prompt",
+      "source": "./plugins/perfect-prompt",
+      "description": "Guided six-section questionnaire that compiles a structured prompt spec inside Claude Code — no API key required."
+    }
+  ]
+}

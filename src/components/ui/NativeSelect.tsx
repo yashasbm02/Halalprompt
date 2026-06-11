@@ -16,7 +16,7 @@ export function NativeSelect({ id, options, value, onChange, error }: NativeSele
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className={cn(
-          'w-full appearance-none rounded-lg border bg-white px-3 py-2 pr-8 text-sm text-gray-900 transition-colors',
+          'w-full appearance-none rounded-lg border bg-white px-3 py-2.5 pr-8 text-sm text-gray-900 transition-colors sm:py-2',
           'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-0 focus:border-blue-500',
           !value && 'text-gray-400',
           error
