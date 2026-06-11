@@ -5,31 +5,43 @@ import { useCompletion } from 'ai/react'
 import { PERFECT_PROMPT_TEMPLATE } from '../schema/template'
 import { deriveSchema, getDefaultValues } from '../schema/validation'
 import { compileMarkdown } from '../schema/compiler'
+import { buildPreset, presetLabel, type RequirementId, type RoleId } from '../schema/presets'
 import { useFormPersistence, loadDraft, clearDraft } from '../hooks/useFormPersistence'
 import { SectionCard } from './SectionCard'
 import { PreviewPanel } from './PreviewPanel'
 import { Button } from './ui/Button'
 import { ApiKeyPopover } from './ApiKeyPopover'
+import { PresetWizard } from './PresetWizard'
 import { useApiKey } from '../context/ApiKeyContext'
 import { cn } from '../lib/utils'
+import { isFieldVisible } from '../schema/types'
 import type { Answers } from '../schema/types'
 
 const template = PERFECT_PROMPT_TEMPLATE
 const schema = deriveSchema(template)
 
-function filledSectionCount(answers: Answers): number {
-  return template.sections.filter((section) =>
+// Progress reflects only the currently-visible sections (conditional sections
+// appear/disappear with the selected requirement).
+function sectionProgress(answers: Answers) {
+  const visible = template.sections.filter((section) =>
+    section.fields.some((f) => isFieldVisible(f, answers)),
+  )
+  const filled = visible.filter((section) =>
     section.fields.some((f) => {
+      if (!isFieldVisible(f, answers)) return false
       const v = answers[f.id]
       return Array.isArray(v) ? v.length > 0 : !!v
     }),
   ).length
+  return { visible, filled }
 }
 
 export function PromptBuilder() {
   const savedDraft = useMemo(() => loadDraft(template.id), [])
+  // Merge defaults under the draft so a draft saved before new fields existed
+  // still seeds every field (no undefined → uncontrolled-input warnings).
   const defaultValues = useMemo(
-    () => savedDraft ?? getDefaultValues(template),
+    () => ({ ...getDefaultValues(template), ...(savedDraft ?? {}) }),
     [savedDraft],
   )
 
@@ -52,6 +64,13 @@ export function PromptBuilder() {
   // is the static side rail there and ignores this state).
   const [sheetOpen, setSheetOpen] = useState(false)
 
+  const [wizardOpen, setWizardOpen] = useState(false)
+  const [activePreset, setActivePreset] = useState<{
+    req: RequirementId
+    role: RoleId
+    fields: string[]
+  } | null>(null)
+
   const handleGenerate = form.handleSubmit(async (data) => {
     if (!apiKey) return
     const spec = compileMarkdown(template, data)
@@ -69,11 +88,25 @@ export function PromptBuilder() {
     stop()
     clearDraft(template.id)
     form.reset(getDefaultValues(template))
+    setActivePreset(null)
     setCompletion('')
   }
 
-  const filled = filledSectionCount(values)
-  const total = template.sections.length
+  const applyPreset = (req: RequirementId, role: RoleId) => {
+    const prefill = buildPreset(req, role)
+    // Atomic — one reset sets every field, revalidates, and recompiles the spec.
+    form.reset({ ...getDefaultValues(template), ...prefill })
+    setActivePreset({ req, role, fields: Object.keys(prefill) })
+    setWizardOpen(false)
+  }
+
+  const clearPreset = () => {
+    form.reset(getDefaultValues(template))
+    setActivePreset(null)
+  }
+
+  const { visible: visibleSections, filled } = sectionProgress(values)
+  const total = visibleSections.length
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-gray-50">
@@ -90,8 +123,9 @@ export function PromptBuilder() {
             {/* Progress indicator */}
             <div className="flex items-center gap-2 text-xs text-gray-500">
               <div className="flex gap-0.5">
-                {template.sections.map((s) => {
+                {visibleSections.map((s) => {
                   const hasFill = s.fields.some((f) => {
+                    if (!isFieldVisible(f, values)) return false
                     const v = values[f.id]
                     return Array.isArray(v) ? v.length > 0 : !!v
                   })
@@ -110,6 +144,23 @@ export function PromptBuilder() {
                 {filled}/{total} sections
               </span>
             </div>
+            {activePreset && (
+              <span className="hidden items-center gap-1 rounded-full bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 sm:inline-flex">
+                {presetLabel(activePreset.req, activePreset.role)}
+                <button
+                  type="button"
+                  onClick={clearPreset}
+                  aria-label="Clear preset"
+                  className="text-blue-400 hover:text-blue-600"
+                >
+                  ✕
+                </button>
+              </span>
+            )}
+            <Button variant="outline" size="sm" onClick={() => setWizardOpen(true)}>
+              <span aria-hidden>✨</span>
+              <span className="hidden sm:inline">Use a preset</span>
+            </Button>
             <ApiKeyPopover />
             <Button variant="ghost" size="sm" onClick={handleReset}>
               Reset
@@ -124,7 +175,13 @@ export function PromptBuilder() {
         <main className="flex-1 overflow-y-auto px-4 py-4 sm:px-6 sm:py-5">
           <div className="mx-auto max-w-2xl space-y-4">
             {template.sections.map((section) => (
-              <SectionCard key={section.id} section={section} form={form} />
+              <SectionCard
+                key={section.id}
+                section={section}
+                form={form}
+                values={values}
+                presetFields={activePreset?.fields}
+              />
             ))}
             <div className="h-6" />
           </div>
@@ -188,6 +245,12 @@ export function PromptBuilder() {
           />
         )}
       </button>
+
+      <PresetWizard
+        open={wizardOpen}
+        onApply={applyPreset}
+        onClose={() => setWizardOpen(false)}
+      />
     </div>
   )
 }
