@@ -11,13 +11,13 @@ interface SectionCardProps {
 export function SectionCard({ section, form }: SectionCardProps) {
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-      <div className="border-b border-gray-100 px-6 py-4">
+      <div className="border-b border-gray-100 px-4 py-4 sm:px-6">
         <h2 className="text-sm font-semibold text-gray-900">{section.title}</h2>
         {section.description && (
           <p className="mt-0.5 text-xs text-gray-500">{section.description}</p>
         )}
       </div>
-      <div className="space-y-5 px-6 py-5">
+      <div className="space-y-5 px-4 py-5 sm:px-6">
         {section.fields.map((field) => (
           <FormField key={field.id} field={field} form={form} />
         ))}

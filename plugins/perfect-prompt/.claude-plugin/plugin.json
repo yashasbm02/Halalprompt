@@ -1,0 +1,9 @@
+{
+  "name": "perfect-prompt",
+  "version": "0.1.0",
+  "description": "Run the halalprompt 'Perfect Prompt' questionnaire inside Claude Code: answer six structured sections, compile an identical markdown spec, and let Claude act on it — keyless, no server.",
+  "author": {
+    "name": "halalprompt"
+  },
+  "keywords": ["prompt-engineering", "questionnaire", "skill", "prompt-builder"]
+}

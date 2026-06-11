@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(claude --version)",
+      "Bash(npm list *)",
+      "Bash(claude plugin *)"
+    ]
+  },
+  "enabledPlugins": {}
+}

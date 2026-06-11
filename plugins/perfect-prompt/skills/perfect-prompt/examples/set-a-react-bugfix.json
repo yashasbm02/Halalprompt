@@ -1,0 +1,17 @@
+{
+  "_note": "Practice answer set A — React bug fix. Keys are template field ids; choice fields use option values. Replay through /perfect-prompt or the web app; the compiled spec should match.",
+  "role_title": "Senior React engineer at a fintech startup",
+  "role_specialisation": "React 19, TypeScript strict, performance profiling",
+  "objective_goal": "Find and fix a re-render bug causing the prompt preview to lag on every keystroke",
+  "objective_deliverable": "code",
+  "context_background": "Vite + React 19 app; PreviewPanel re-renders on every form.watch() change",
+  "context_tech_stack": ["react", "typescript"],
+  "context_hard_constraints": "No new dependencies; keep the single-source-of-truth template intact",
+  "scope_include": "Root-cause analysis + the minimal diff",
+  "scope_exclude": "Rewriting the form library",
+  "depth_level": "thorough",
+  "depth_lenses": ["performance", "dx"],
+  "depth_format": "code_first",
+  "tone_style": "technical",
+  "tone_audience": "senior"
+}

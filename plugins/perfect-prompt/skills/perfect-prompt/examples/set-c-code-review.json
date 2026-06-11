@@ -1,0 +1,14 @@
+{
+  "_note": "Practice answer set C — security code review. Keys are template field ids; choice fields use option values.",
+  "role_title": "Application security reviewer",
+  "objective_goal": "Review the BYOK key-handling change for leaks",
+  "objective_deliverable": "review",
+  "context_background": "Key travels in an Authorization header, used per-request server-side, never persisted",
+  "context_tech_stack": ["typescript", "nodejs"],
+  "scope_include": "Concrete findings with file references and severity",
+  "depth_level": "concise",
+  "depth_lenses": ["security", "risks"],
+  "depth_format": "bullets",
+  "tone_style": "technical",
+  "tone_audience": "expert"
+}

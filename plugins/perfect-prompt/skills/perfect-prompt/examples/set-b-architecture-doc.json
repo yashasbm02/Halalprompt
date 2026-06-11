@@ -1,0 +1,16 @@
+{
+  "_note": "Practice answer set B — architecture/plan doc. Keys are template field ids; choice fields use option values.",
+  "role_title": "Cracked senior fullstack developer at a YC startup",
+  "role_specialisation": "Claude Code tooling, React UI, security, 12-factor apps",
+  "objective_goal": "Design a Claude Code plugin that runs the halalprompt questionnaire keylessly",
+  "objective_deliverable": "plan",
+  "context_background": "Existing web app compiles a six-section form into a markdown spec; inside Claude Code the host is the LLM",
+  "context_tech_stack": ["react", "typescript", "nodejs"],
+  "context_hard_constraints": "Lightweight and fast; no copyright violations; reuse template.ts",
+  "scope_include": "Implementation plan, strategies, libraries, trade-offs, overheads, estimated stats",
+  "depth_level": "exhaustive",
+  "depth_lenses": ["architecture", "tradeoffs", "risks", "security", "performance"],
+  "depth_format": "mixed",
+  "tone_style": "technical",
+  "tone_audience": "intermediate"
+}

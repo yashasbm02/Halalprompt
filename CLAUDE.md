@@ -23,7 +23,7 @@ Template object
   └── FormEngine render  → FormField switches on field.kind
 ```
 
-**Adding a question = editing only `template.ts`.** The form render, validation rules, and markdown output all update automatically.
+**Adding a question = editing only `template.ts`.** The form render, validation rules, and markdown output all update automatically. The Claude Code plugin also derives from it — re-run `npm run build:skill` after editing (see below).
 
 ## Key files
 
@@ -45,6 +45,27 @@ Template object
 ## Trust boundary
 
 Clients bring their own provider key (**BYOK**). The key travels per-request in an HTTP header (`Authorization: Bearer …` + `x-llm-provider`) over HTTPS to `POST /api/generate`, is used once via `buildModel()` (`server/providers.ts`) to construct the provider, and is **never stored, logged, or written to disk**. On the client it lives in memory only (`src/context/ApiKeyContext.tsx`) — never in `localStorage`, never compiled into the markdown spec. All model calls still go through the server route; never add model calls to client code. Vite dev server proxies `/api/*` → `http://localhost:3001`.
+
+## Claude Code plugin (`/perfect-prompt`)
+
+A second consumer of the same questionnaire that runs **inside Claude Code** — keyless (the host
+*is* the LLM, so there's no BYOK, no server, no `/api/*`). It asks the six sections conversationally
+(native picker via `AskUserQuestion` for choice fields with ≤4 options; plain text otherwise),
+compiles the **identical** markdown spec, shows it, then answers it in-session.
+
+| Path | Role |
+|---|---|
+| `scripts/build-skill.ts` | Codegen: imports `PERFECT_PROMPT_TEMPLATE` → writes the skill's `template.json`. Run via `npm run build:skill` (chained into `npm run build`) |
+| `plugins/perfect-prompt/skills/perfect-prompt/SKILL.md` | The workflow + compiler rules (ported from `compiler.ts`) the skill follows |
+| `plugins/perfect-prompt/skills/perfect-prompt/template.json` | **Generated — do not hand-edit.** The questionnaire data the skill reads |
+| `plugins/perfect-prompt/skills/perfect-prompt/examples/` | Practice answer sets (replay + diff vs the web app) |
+| `plugins/perfect-prompt/commands/perfect-prompt.md` | `/perfect-prompt` slash-command entry |
+| `plugins/perfect-prompt/.claude-plugin/plugin.json` · `.claude-plugin/marketplace.json` | Plugin + marketplace manifests |
+
+`template.json` is the **single source of truth made portable**: edit `template.ts`, run
+`npm run build:skill`, and the skill stays in sync (CI can enforce with `git diff --exit-code
+plugins/`). Install locally with `/plugin marketplace add .` then `/plugin install
+perfect-prompt@halalprompt`.
 
 ## Field kinds
 
